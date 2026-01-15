@@ -1,7 +1,7 @@
 {
   "format_version": 2,
   "header": {
-    "name": "mod preset",
+    "name": "mcpe-mod-preset",
     "description": "an MCPE mod preset, change this to your mods desc",
     "uuid": <REPLACE WITH YOUR NEW UUID V4>,
     "version": [1, 0, 0],
