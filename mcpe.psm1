@@ -7,7 +7,11 @@ function mcpe {
 		[string]$PathOrName = ".",
 
 		[Parameter(Position=2)]
-		[string]$Name = "mcpe-mod-preset"
+		[string]$Name = "mcpe-mod-preset",
+
+		[Parameter()]
+		[ValidateSet("default","full")]
+		[string]$DeleteOption = "default"
 	)
 
 	switch ($Action.ToLower()) {
@@ -70,34 +74,37 @@ function mcpe {
 		"delete" {
             $RootPath = $PathOrName
 
-            if (-not (Test-Path $RootPath)) {
-                Write-Host "Folder specified at $RootPath doesn't exist." -ForegroundColor Red
-                return
-            }
+    		if (-not (Test-Path $RootPath)) {
+    		    Write-Host "Folder specified at $RootPath doesn't exist." -ForegroundColor Red
+    		    return
+    		}
+    		$manifestDirs = Get-ChildItem $RootPath -Recurse -Filter manifest.json -ErrorAction SilentlyContinue |
+    		    Select-Object -ExpandProperty Directory -Unique
 
-            Get-ChildItem $RootPath -Recurse -Filter manifest.json |
-                ForEach-Object {
-                    $relative = $_.FullName.Substring($RootPath.Length).TrimStart('\','/')
-                    $depth = ($relative -split '[\\/]').Count - 1
+    		if (-not $manifestDirs) {
+    		    Write-Host "No MCPE mods found in $RootPath" -ForegroundColor Yellow
+    		    return
+    		}
 
-                    if ($depth -eq 1) {
-                        $folder = $_.Directory.FullName
-                        Write-Host "Deleting $folder" -ForegroundColor Yellow
-                        try {
-                            Remove-Item $folder -Recurse -Force
-							Write-Host "Deleted folder at the path: $_"
-                        } catch {
-                            Write-Host "Failed to delete folder at $_" -ForegroundColor Red
-                        }
-                    }
-                }
-        }
+    		if ($DeleteOption -eq "full") {
+        		YE
+    		}
+
+    		Get-ChildItem $RootPath -Directory |
+    		    Where-Object {
+    		        Test-Path (Join-Path $_.FullName "manifest.json")
+    		    } |
+    		    ForEach-Object {
+    		        Write-Host "Deleting $($_.FullName)" -ForegroundColor Yellow
+    		        Remove-Item $_.FullName -Recurse -Force
+    		    }
+		}
 
 		"info" {
 			Write-Host "Usage:" -ForegroundColor Yellow
 			Write-Host "`mcpe new <path> [name]` to create a new mod" -ForegroundColor Green
 			Write-Host "`mcpe delete <path>` to delete a folder" -ForegroundColor Green
-			Write-Host "Note: <> means a mandatory string and [] means a optional string"
+			Write-Host "Note: <> means a mandatory string and [] means a optional string" -ForegroundColor Cyan
 		}
 
 		default {
