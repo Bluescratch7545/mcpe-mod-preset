@@ -80,7 +80,7 @@ function mcpe {
                     $relative = $_.FullName.Substring($RootPath.Length).TrimStart('\','/')
                     $depth = ($relative -split '[\\/]').Count - 1
 
-                    if ($depth -eq 2) {
+                    if ($depth -eq 1) {
                         $folder = $_.Directory.FullName
                         Write-Host "Deleting $folder" -ForegroundColor Yellow
                         try {
