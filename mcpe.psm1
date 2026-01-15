@@ -170,8 +170,9 @@ function mcpe {
 		"info" {
 			Write-Host "Usage:" -ForegroundColor Yellow
 			Write-Host "`mcpe new <path> [name]` to create a new mod" -ForegroundColor Green
-			Write-Host "`mcpe delete <path>` to delete a folder" -ForegroundColor Green
+			Write-Host "`mcpe delete <path>` to delete the inner folders of a project, or `mcpe delete <path> -DeleteOption full to delete the whole folder" -ForegroundColor Green
 			Write-Host "`mcpe uninstall` to uninstall the program"
+			Write-Host "`mcpe build <destination path> -BuildType [buildtype (mcpack/mcaddon)]"
 			Write-Host "Note: <> means a mandatory string and [] means a optional string" -ForegroundColor Cyan
 		}
 
