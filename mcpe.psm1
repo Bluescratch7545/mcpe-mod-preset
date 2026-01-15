@@ -11,7 +11,11 @@ function mcpe {
 
 		[Parameter()]
 		[ValidateSet("default","full")]
-		[string]$DeleteOption = "default"
+		[string]$DeleteOption = "default",
+
+		[Parameter()]
+		[ValidateSet("mcpack","mcaddon")]
+		[string]$BuildType = "mcaddon"
 	)
 
 	switch ($Action.ToLower()) {
@@ -87,24 +91,110 @@ function mcpe {
     		}
 
     		if ($DeleteOption -eq "full") {
-        		YE
+        		Write-Host "⚠️  FULL DELETE MODE" -ForegroundColor Red
+        		Write-Host "This will permanently delete the entire MCPE mod folder:" -ForegroundColor Yellow
+        		Write-Host "  $RootPath" -ForegroundColor Cyan
+        		Write-Host ""
+        		$confirm = Read-Host "Type YES to continue"
+
+				if ($confirm -ne "YES") {
+        			Write-Host "Aborted." -ForegroundColor Yellow
+            		return
+				}
+
+				Write-Host "Deleting entire folder: $RootPath" -ForegroundColor Red
+        		Remove-Item $RootPath -Recurse -Force
+        		Write-Host "Done." -ForegroundColor Green
+        		return
     		}
 
-    		Get-ChildItem $RootPath -Directory |
-    		    Where-Object {
-    		        Test-Path (Join-Path $_.FullName "manifest.json")
-    		    } |
-    		    ForEach-Object {
-    		        Write-Host "Deleting $($_.FullName)" -ForegroundColor Yellow
-    		        Remove-Item $_.FullName -Recurse -Force
-    		    }
+    		$manifestDirs |
+    			ForEach-Object {
+        			Write-Host "Deleting $($_.FullName)" -ForegroundColor Yellow
+        			Remove-Item $_.FullName -Recurse -Force
+    			}
+		}
+
+		"build" {
+			$DestPath = $PathOrName
+
+			if (-not (Test-Path $DestPath)) {
+				Write-Host "Cannot find destination path: $DestPath" -ForegroundColor Yellow
+				return
+			}
+
+			$mods = Get-ChildItem $DestPath -Directory |
+				Where-Object {
+					($_.Name -match '_(BP|RP)$') -and (Test-Path (Join-Path $_.FullName 'manifest.json'))
+				}
+
+			if (-not $mods) {
+				Write-Host "No BP/RP mods found!" -ForegroundColor Yellow
+				return 
+			}
+
+			if ($BuildType -eq "mcaddon") {
+				$addonName = Split-Path $DestPath -Leaf
+				$zipPath = Join-Path $DestPath "$addonName.zip"
+				$mcaddonPath = Join-Path $DestPath "$addonName.mcaddon"
+
+				if (Test-Path $zipPath) { Remove-Item $zipPath }
+				if (Test-Path $mcaddonPath) { Remove-Item $mcaddonPath }
+
+				Write-Host "Building $addonName.mcaddon..." -ForegroundColor Cyan
+
+				Compress-Archive -Path ($mods.FullName) -DestinationPath $zipPath
+				Rename-Item $zipPath $mcaddonPath
+
+				Write-Host ".MCADDON Build Complete at:" -ForegroundColor Green
+				Write-Host "$mcaddonPath!" -ForegroundColor Green
+				return
+			}
+
+			foreach ($mod in $mods) {
+				$zipPath = "$($mod.FullName).zip"
+				$mcpackPath = "$($mod.FullName).mcpack"
+
+				if (Test-Path $zipPath) { Remove-Item $zipPath -Force }
+        		if (Test-Path $mcpackPath) { Remove-Item $mcpackPath -Force }
+
+				Write-Host "Building: $($mod.FullName).mcpack..." -ForegroundColor Cyan
+
+				Compress-Archive -Path "$($mod.FullName)\*" -DestinationPath $zipPath
+				Rename-Item $zipPath $mcpackPath
+			}
+			Write-Host "MCPACK Build Complete at:"
+			Write-Host "$mcpackPath"
 		}
 
 		"info" {
 			Write-Host "Usage:" -ForegroundColor Yellow
 			Write-Host "`mcpe new <path> [name]` to create a new mod" -ForegroundColor Green
 			Write-Host "`mcpe delete <path>` to delete a folder" -ForegroundColor Green
+			Write-Host "`mcpe uninstall` to uninstall the program"
 			Write-Host "Note: <> means a mandatory string and [] means a optional string" -ForegroundColor Cyan
+		}
+
+		"uninstall" {
+			$modulePath = Join-Path $HOME "Documents/WindowsPowerShell/Modules/mcpe"
+
+			Write-Host "Uninstall?"
+			Write-Host "Are you sure you want to uninstall the mcpe mod preset pwshl command?"
+			Write-Host ""
+			$confirmUninstall = Read-Host "Type YES to continue"
+
+			if ($confirmUninstall -ne "YES") {
+				Write-Host "Uninstallation aborted"
+				return
+			}
+
+			Write-Host "Uninstalling..."
+			if (Test-Path $modulePath) {
+    			Remove-Item $modulePath -Recurse -Force
+    			Write-Host "Successfully uninstalled."
+			} else {
+    			Write-Host "mcpe module not found."
+			}
 		}
 
 		default {
