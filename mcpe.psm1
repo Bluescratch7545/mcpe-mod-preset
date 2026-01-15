@@ -48,19 +48,20 @@ function mcpe {
 			Write-Host "Renaming inner folders to $Name _RP/BP"
 
 			$innerFolders = Get-ChildItem $TargetPath -Directory
-			if ($innerFolders.Count -gt 0) {
-				$first = $innerFolders[0].Name
-				$oldPrefix = ($first -split "_")[0]
 
-				Get-ChildItem $TargetPath -Recurse -Directory |
-					Sort-Object FullName -Descending |
-					ForEach-Object {
-						$suffix = $_.Name -replace "^$oldPrefix", ""
-						$newName = "$Name$suffix"
-						if ($newName -ne $_.Name) {
-							Rename-Item -Path $_.FullName -NewName $newName
-						}
-					}
+			if ($innerFolders -and $innerFolders.Count -gt 0) {
+			    $first = $innerFolders[0].Name
+			    $oldPrefix = ($first -split "_")[0]
+
+			    Get-ChildItem $TargetPath -Recurse -Directory |
+			        Sort-Object FullName -Descending |
+ 			       	ForEach-Object {
+ 			           	$suffix = $_.Name -replace "^$oldPrefix", ""
+			            $newName = "$Name$suffix"
+			            if ($newName -ne $_.Name) {
+			                Rename-Item -Path $_.FullName -NewName $newName
+			            }
+ 			       }
 			}
 
 			Write-Host "Repo cloned to: $TargetPath" -ForegroundColor Cyan
