@@ -91,6 +91,13 @@ function mcpe {
                 }
         }
 
+		"info" {
+			Write-Host "Usage:" -ForegroundColor Yellow
+			Write-Host "`mcpe new <path> [name]` to create a new mod" -ForegroundColor Green
+			Write-Host "`mcpe delete <path>` to delete a folder" -ForegroundColor Green
+			Write-Host "Note: <> means a mandatory string and [] means a optional string"
+		}
+
 		default {
             Write-Host "Unknown action '$Action'. Use `mcpe info` for usage instructions." -ForegroundColor Red
         }
