@@ -31,7 +31,7 @@ function mcpe {
 				return
 			}
 
-			git clone https://github.com/Bluescratch7545/mcpe-mod-preset/tree/main/copied%20folder $TargetPath
+			git clone https://github.com/Bluescratch7545/mcpe-mod-preset $TargetPath
 
 			Write-Host "Renaming references to $Name"
 
