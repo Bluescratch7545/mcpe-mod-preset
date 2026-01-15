@@ -48,7 +48,7 @@ function mcpe {
 			Write-Host "Renaming inner folders to $Name _RP/BP"
 
 			$innerFolders = Get-ChildItem $TargetPath -Directory
-			if ($innerFolders.Count() -gt 0) {
+			if ($innerFolders.Count -gt 0) {
 				$first = $innerFolders[0].Name
 				$oldPrefix = ($first -split "_")[0]
 
