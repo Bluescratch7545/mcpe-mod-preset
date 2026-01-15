@@ -51,7 +51,7 @@ function mcpe {
 			}
 		}
 
-		default {
+		"info" {
 			Write-Host "Usage:" -ForegroundColor Yellow
 			Write-Host "`"mcpe new <path> [name]`" to create a new mod" -ForegroundColor Green
 			Write-Host "`"mcpe delete <path>`" to delete a folder" -ForegroundColor Green
