@@ -31,7 +31,7 @@ function mcpe {
 				return
 			}
 
-			git clone https://github.com/Bluescratch7545/mcpe-mod-preset $TargetPath
+			git clone https://github.com/Bluescratch7545/mcpe-mod-preset/tree/main/copied folder/ $TargetPath
 			Write-Host "Repo cloned to: $TargetPath" -ForegroundColor Cyan
 			Write-Host "Happy Modding!" -ForegroundColor Green
 		}
