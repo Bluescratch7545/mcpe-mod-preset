@@ -85,6 +85,7 @@ function mcpe {
                         Write-Host "Deleting $folder" -ForegroundColor Yellow
                         try {
                             Remove-Item $folder -Recurse -Force
+							Write-Host "Deleted folder at the path: $_"
                         } catch {
                             Write-Host "Failed to delete folder at $_" -ForegroundColor Red
                         }
