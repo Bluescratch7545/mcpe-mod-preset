@@ -31,7 +31,7 @@ function mcpe {
 				return
 			}
 
-			git clone https://github.com/Bluescratch7545/mcpe-mod-preset $TargetPath
+			git clone https://github.com/Bluescratch7545/preset $TargetPath
 
 			Write-Host "Renaming references to $Name"
 
@@ -49,7 +49,7 @@ function mcpe {
 
 			$innerFolders = Get-ChildItem $TargetPath -Directory
 			if ($innerFolders.Count() -gt 0) {
-				$first = $innerFolders
+				$first = $innerFolders[0].Name
 				$oldPrefix = ($first -split "_")[0]
 
 				Get-ChildItem $TargetPath -Recurse -Directory |
