@@ -31,31 +31,68 @@ function mcpe {
 				return
 			}
 
-			git clone https://github.com/Bluescratch7545/mcpe-mod-preset/tree/main/copied folder/ $TargetPath
+			git clone https://github.com/Bluescratch7545/mcpe-mod-preset/tree/main/copied%20folder $TargetPath
+
+			Write-Host "Renaming references to $Name"
+
+			$oldName = "mcpe-mod-preset"
+			Get-ChildItem $TargetPath -Recurse -File |
+				Where-Object {$_.Extension -notin ".png", ".jpg", ".zip" } |
+				ForEach-Object {
+					$content = Get-Content $_.FullName -Raw
+					if ($content -match $oldName) {
+						$content -replace $oldName, $Name | Set-Content $_.FullName
+					}
+				}
+
+			Write-Host "Renaming inner folders to $Name _RP/BP"
+
+			$innerFolders = Get-ChildItem $TargetPath -Directory
+			if ($innerFolders.Count() -gt 0) {
+				$first = $innerFolders
+				$oldPrefix = ($first -split "_")[0]
+
+				Get-ChildItem $TargetPath -Recurse -Directory |
+					Sort-Object FullName -Descending |
+					ForEach-Object {
+						$suffix = $_.Name -replace "^$oldPrefix", ""
+						$newName = "$Name$suffix"
+						if ($newName -ne $_.Name) {
+							Rename-Item -Path $_.FullName -NewName $newName
+						}
+					}
+			}
+
 			Write-Host "Repo cloned to: $TargetPath" -ForegroundColor Cyan
 			Write-Host "Happy Modding!" -ForegroundColor Green
 		}
 		"delete" {
-			$FolderToDelete = $PathOrName
+            $RootPath = $PathOrName
 
-			if (-not (Test-Path $FolderToDelete)) {
-				Write-Host "Folder specified at $FolderToDelete doesnt exist. Please check the spelling or if you want to create a new mod do `"mcpe new <path> [name (optional)]`""
-				return
-			}
+            if (-not (Test-Path $RootPath)) {
+                Write-Host "Folder specified at $RootPath doesn't exist." -ForegroundColor Red
+                return
+            }
 
-			try {
-				Remove-Item -Path $FolderToDelete -Recurse -Force
-				Write-Host "Folder deleted at $FolderToDelete" -ForegroundColor Green
-			} catch {
-				Write-Host "Failed to delete folder at $_" -ForegroundColor Red
-			}
-		}
+            Get-ChildItem $RootPath -Recurse -Filter manifest.json |
+                ForEach-Object {
+                    $relative = $_.FullName.Substring($RootPath.Length).TrimStart('\','/')
+                    $depth = ($relative -split '[\\/]').Count - 1
 
-		"info" {
-			Write-Host "Usage:" -ForegroundColor Yellow
-			Write-Host "`"mcpe new <path> [name]`" to create a new mod" -ForegroundColor Green
-			Write-Host "`"mcpe delete <path>`" to delete a folder" -ForegroundColor Green
-			Write-Information "Note: <> means a mandatory string and () means a optional string"
-		}
+                    if ($depth -eq 2) {
+                        $folder = $_.Directory.FullName
+                        Write-Host "Deleting $folder" -ForegroundColor Yellow
+                        try {
+                            Remove-Item $folder -Recurse -Force
+                        } catch {
+                            Write-Host "Failed to delete folder at $_" -ForegroundColor Red
+                        }
+                    }
+                }
+        }
+
+		default {
+            Write-Host "Unknown action '$Action'. Use `mcpe info` for usage instructions." -ForegroundColor Red
+        }
 	}
 }
