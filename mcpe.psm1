@@ -46,8 +46,10 @@ function mcpe {
 
 			git clone https://github.com/Bluescratch7545/preset $TargetPath
 
+			Start-Sleep -Seconds 2
 			Write-Host "Renaming references to $Name"
 
+			Start-Sleep -Seconds 2
 			$oldName = "mcpe-mod-preset"
 			Get-ChildItem $TargetPath -Recurse -File |
 				Where-Object {$_.Extension -notin ".png", ".jpg", ".zip" } |
@@ -57,8 +59,10 @@ function mcpe {
 						$content -replace $oldName, $Name | Set-Content $_.FullName
 					}
 				}
+			Start-Sleep -Milliseconds 500
 			Write-Host "References Renamed to $Name!"
 
+			Start-Sleep -Seconds 2
 			Write-Host "Renaming inner folders to $Name _RP/BP or -rp/bp"
 
 			if ($SuffixStyle -eq "dash") {
@@ -80,9 +84,24 @@ function mcpe {
 					}
 				}
 
+			Start-Sleep -Seconds 2
 			Write-Host "Inner Folders Renamed to $Name$bpSuffix & $Name$rpSuffix!"
+			Start-Sleep -Milliseconds 2500
 			Write-Host "Repo cloned to: $TargetPath" -ForegroundColor Cyan
+
+			Start-Sleep -Seconds 1
+			Write-Host "Moving to $TargetPath..."
+
+			Start-Sleep -Seconds 2
+			Set-Location $TargetPath
+			Write-Host "Complete!"
+
+			Start-Sleep -Seconds 1
+			Write-Host "Opening VSCode..."
+			
+			Start-Sleep -Seconds 2
 			Write-Host "Happy Modding!" -ForegroundColor Green
+			code .
 		}
 		"delete" {
             $RootPath = $PathOrName
