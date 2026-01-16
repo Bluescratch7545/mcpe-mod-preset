@@ -115,7 +115,7 @@ function mcpe {
 				ForEach-Object {
 					$content = Get-Content $_.FullName -Raw
 					if ($content -match "<REPLACE WITH YOUR NEW UUID V4>") {
-						$newContent = $content -replace "<REPLACE WITH YOUR NEW UUID V4>", { [guid]::NewGuid().ToString() }
+						$newContent = [regex]::Replace($content, "<REPLACE WITH YOUR NEW UUID V4>", { param($m) [guid]::NewGuid().ToString() })
 						Set-Content $_.FullName $newContent
 					}
 				}
