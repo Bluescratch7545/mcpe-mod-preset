@@ -15,7 +15,12 @@ function mcpe {
 
 		[Parameter()]
 		[ValidateSet("mcpack","mcaddon")]
-		[string]$BuildType = "mcaddon"
+		[string]$BuildType = "mcaddon",
+
+		
+		[Parameter()]
+		[ValidateSet("underscore", "dash")]
+		[string]$SuffixStyle = "underscore"
 	)
 
 	switch ($Action.ToLower()) {
@@ -52,26 +57,30 @@ function mcpe {
 						$content -replace $oldName, $Name | Set-Content $_.FullName
 					}
 				}
+			Write-Host "References Renamed to $Name!"
 
-			Write-Host "Renaming inner folders to $Name _RP/BP"
+			Write-Host "Renaming inner folders to $Name _RP/BP or -rp/bp"
 
-			$innerFolders = Get-ChildItem $TargetPath -Directory
-
-			if ($innerFolders -and $innerFolders.Count -gt 0) {
-			    $first = $innerFolders[0].Name
-			    $oldPrefix = ($first -split "_")[0]
-
-			    Get-ChildItem $TargetPath -Recurse -Directory |
-			        Sort-Object FullName -Descending |
- 			       	ForEach-Object {
- 			           	$suffix = $_.Name -replace "^$oldPrefix", ""
-			            $newName = "$Name$suffix"
-			            if ($newName -ne $_.Name) {
-			                Rename-Item -Path $_.FullName -NewName $newName
-			            }
- 			       }
+			if ($SuffixStyle -eq "dash") {
+				$bpSuffix = "-bp"
+				$rpSuffix = "-rp"
+			}
+			else {
+				$bpSuffix = "_BP"
+				$rpSuffix = "_RP"
 			}
 
+			Get-ChildItem $TargetPath -Directory |
+				ForEach-Object {
+					if ($_.Name -match '(?i)bp$') {
+						Rename-Item $_.FullName "$Name$bpSuffix"
+					}
+					if ($_.Name -match '(?i)rp$') {
+						Rename-Item $_.FullName "$Name$rpSuffix"
+					}
+				}
+
+			Write-Host "Inner Folders Renamed to $Name$bpSuffix & $Name$rpSuffix!"
 			Write-Host "Repo cloned to: $TargetPath" -ForegroundColor Cyan
 			Write-Host "Happy Modding!" -ForegroundColor Green
 		}
