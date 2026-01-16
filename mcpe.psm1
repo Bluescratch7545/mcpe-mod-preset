@@ -44,7 +44,12 @@ function mcpe {
 				return
 			}
 
+			Write-Host "Copying the repositiory of https://github.com/Bluescratch7545/preset to $TargetPath"
+
+			Start-Sleep -Milliseconds 500
 			git clone https://github.com/Bluescratch7545/preset $TargetPath
+
+			Write-Host "Repo cloned to: $TargetPath" -ForegroundColor Cyan
 
 			Start-Sleep -Seconds 2
 			Write-Host "Renaming references to $Name"
@@ -101,8 +106,20 @@ function mcpe {
 			Remove-Item (Join-Path $TargetPath "README.md") -Recurse -Force
 			Write-Host "Complete"
 
-			Start-Sleep -Milliseconds 2500
-			Write-Host "Repo cloned to: $TargetPath" -ForegroundColor Cyan
+			Start-Sleep -Milliseconds 500
+			Write-Host "Replacing UUIDs with new UUID v4..."
+
+			Start-Sleep -Milliseconds 500
+			Get-ChildItem $TargetPath -Recurse -File |
+				Where-Object { $_.Extension -notin ".png", "jpg", ".zip" } |
+				ForEach-Object {
+					$content = Get-Content $_.FullName -Raw
+					if ($content -match "<REPLACE WITH YOUR NEW UUID V4>") {
+						$newContent = $content -replace "<REPLACE WITH YOUR NEW UUID V4>", { [guid]::NewGuid().ToString() }
+						Set-Content $_.FullName $newContent
+					}
+				}
+			Write-Host "UUIDs replaced succesfully"
 
 			Start-Sleep -Seconds 1
 			Write-Host "Moving to $TargetPath..."

@@ -7,5 +7,8 @@ Invoke-WebRequest `
 
 Import-Module mcpe
 
+Write-Host "||INFO|| Importing..." -ForegroundColor Cyan
+
+Start-Sleep -Seconds 2
 Write-Host "||INFO|| mcpe installed successfully!" -ForegroundColor Green
 Write-Host "||INFO|| Try: mcpe info" -ForegroundColor Cyan
