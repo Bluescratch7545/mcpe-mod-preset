@@ -86,6 +86,21 @@ function mcpe {
 
 			Start-Sleep -Seconds 2
 			Write-Host "Inner Folders Renamed to $Name$bpSuffix & $Name$rpSuffix!"
+
+			Start-Sleep -Seconds 2
+			Write-Host "Removing .git folder..."
+
+			Start-Sleep -Milliseconds 500
+			Remove-Item (Join-Path $TargetPath ".git") -Recurse -Force
+			Write-Host "Complete"
+
+			Start-Sleep -Milliseconds 500
+			Write-Host "Removing README.md..."
+
+			Start-Sleep -Milliseconds 500
+			Remove-Item (Join-Path $TargetPath "README.md") -Recurse -Force
+			Write-Host "Complete"
+
 			Start-Sleep -Milliseconds 2500
 			Write-Host "Repo cloned to: $TargetPath" -ForegroundColor Cyan
 
@@ -100,8 +115,14 @@ function mcpe {
 			Write-Host "Opening VSCode..."
 			
 			Start-Sleep -Seconds 2
+			if (Get-Command code -ErrorAction SilentlyContinue) {
+    			code .
+			} else {
+			    Write-Host "VSCode not found, skipping launch." -ForegroundColor Yellow
+			}
+
+			Start-Sleep -Milliseconds 500
 			Write-Host "Happy Modding!" -ForegroundColor Green
-			code .
 		}
 		"delete" {
             $RootPath = $PathOrName
@@ -192,7 +213,7 @@ function mcpe {
 				Compress-Archive -Path "$($mod.FullName)\*" -DestinationPath $zipPath
 				Rename-Item $zipPath $mcpackPath
 			}
-			Write-Host "MCPACK Build Complete at:"
+			Write-Host ".MCPACK Build Complete at:"
 			Write-Host "$mcpackPath"
 		}
 
