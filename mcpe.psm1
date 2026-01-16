@@ -121,6 +121,7 @@ function mcpe {
     			ForEach-Object {
         			Write-Host "Deleting $($_.FullName)" -ForegroundColor Yellow
         			Remove-Item $_.FullName -Recurse -Force
+					Write-Host "Deleted $($_.FullName)"
     			}
 		}
 
