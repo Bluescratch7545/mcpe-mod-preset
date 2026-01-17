@@ -192,7 +192,7 @@ function mcpe {
 
 			$mods = Get-ChildItem $DestPath -Directory |
 				Where-Object {
-					($_.Name -match '_(BP|RP)$') -and (Test-Path (Join-Path $_.FullName 'manifest.json'))
+					($_.Name -match '(?i)[_-](bp|rp)$') -and (Test-Path (Join-Path $_.FullName 'manifest.json'))
 				}
 
 			if (-not $mods) {
