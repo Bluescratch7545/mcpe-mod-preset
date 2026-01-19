@@ -202,21 +202,27 @@ function mcpe {
 
 			if ($BuildType -eq "mcaddon") {
 				$addonName = Split-Path $DestPath -Leaf
+				$zipPath = Join-Path $DestPath "$addonName.zip"
 				$mcaddonPath = Join-Path $DestPath "$addonName.mcaddon"
 
-				if (Test-Path $mcaddonPath) {
-				    Remove-Item $mcaddonPath -Force
-				}
+				if (Test-Path $mcaddonPath) { Remove-Item $mcaddonPath -Force }
+				if (Test-Path $zipPath) { Remove-Item $zipPath -Force }
 
 				$bp = Get-ChildItem $DestPath -Directory | Where-Object { $_.Name -match '(?i)(_bp|-bp)$' }
 				$rp = Get-ChildItem $DestPath -Directory | Where-Object { $_.Name -match '(?i)(_rp|-rp)$' }
 
 				Write-Host "Building $addonName.mcaddon..." -ForegroundColor Cyan
 
-				tar -a -c -f $mcaddonPath `
+				tar -c -f $zipPath `
 				    -C $DestPath `
 				    $bp.Name `
 				    $rp.Name
+
+				Start-Sleep -Seconds 2
+				Write-Host "Build COmplete. Renaming..."
+
+				Start-Sleep -Milliseconds 500
+				Rename-Item $zipPath $mcaddonPath
 
 				Write-Host "MCADDON build complete:" -ForegroundColor Green
 				Write-Host $mcaddonPath
